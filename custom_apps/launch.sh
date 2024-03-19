@@ -37,7 +37,7 @@ if [ -z "$API_KEY" ]; then
     exit 1
 fi
 
-echo "OPENAI_API_BASE=$API_BASE" >> .env
+echo "OPENAI_API_BASE=$API_BASE" > .env
 echo "OPENAI_API_KEY=$API_KEY" >> .env
 
 agenta init --app_name $APP_NAME --backend_host http://localhost

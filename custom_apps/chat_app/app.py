@@ -1,10 +1,9 @@
 from os import environ
 import agenta as ag
-from langchain.chains import LLMChain
 from langchain.chat_models import ChatOpenAI
-from langchain.prompts import PromptTemplate
+from langchain_core.messages import HumanMessage, SystemMessage
 
-DEFAULT_PROMPT = "What is a good name for a company that makes {product}?"
+DEFAULT_PROMPT = "You are brillient in offering ideas to startups"
 
 LLM_MODELS = [
     "gpt-3.5-turbo",
@@ -13,7 +12,7 @@ LLM_MODELS = [
 
 ag.init()
 ag.config.default(
-    prompt_template=ag.TextParam(DEFAULT_PROMPT),
+    system_prompt=ag.TextParam(DEFAULT_PROMPT),
     model=ag.MultipleChoiceParam("gpt-3.5-turbo", LLM_MODELS),
     temperature=ag.FloatParam(default=0.5, minval=0, maxval=2),
     max_tokens=ag.IntParam(default=-1, minval=-1, maxval=16000),
@@ -25,7 +24,7 @@ ag.config.default(
 
 
 @ag.entrypoint
-def generate(inputs: ag.DictInput = ag.DictInput(default_keys=["product"])) -> str:
+def generate(inputs: ag.MessagesInput = ag.MessagesInput([{"role": "user", "content": "Give 2 ideas on a tech based startup"}])):
     llm = ChatOpenAI(
         openai_api_base=environ.get("OPENAI_API_BASE"),
         openai_api_key=environ.get("OPENAI_API_KEY"),
@@ -42,12 +41,12 @@ def generate(inputs: ag.DictInput = ag.DictInput(default_keys=["product"])) -> s
         },
     )
 
-    prompt = PromptTemplate(
-        input_variables=["product"], template=ag.config.prompt_template
-    )
+    messages = [
+        SystemMessage(content=ag.config.system_prompt),
+    ] + inputs
 
-    chain = LLMChain(llm=llm, prompt=prompt)
+    output = llm.invoke(messages)
 
-    output = chain.run(**inputs)
-
-    return output
+    return {
+        "message": output.content,
+    }
