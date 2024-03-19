@@ -11,5 +11,4 @@ fi
 
 pip install -U agenta
 
-curl -L https://raw.githubusercontent.com/agenta-ai/agenta/main/docker-compose.gh.yml -o docker-compose.gh.yml
 docker compose -f docker-compose.yml up -d

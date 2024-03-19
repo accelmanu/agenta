@@ -3,7 +3,7 @@ import agenta as ag
 from langchain.chat_models import ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage
 
-DEFAULT_PROMPT = "You are brillient in offering ideas to startups"
+DEFAULT_PROMPT = "You are brilliant in offering ideas to startups"
 
 LLM_MODELS = [
     "gpt-3.5-turbo",
