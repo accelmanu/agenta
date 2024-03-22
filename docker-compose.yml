@@ -4,7 +4,7 @@ services:
         command: --api.dashboard=true --api.insecure=true --providers.docker --entrypoints.web.address=:80
         ports:
             - "80:80"
-            - "8888:8888"
+            - "8080:8080"
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         networks:
@@ -70,13 +70,13 @@ services:
             - ./agenta-web/public:/app/public
             - .nextjs_cache:/app/.next
         ports:
-            - "3001:3001"
+            - "3000:3000"
         networks:
             - agenta-network
         labels:
             - "traefik.http.routers.agenta-web.rule=PathPrefix(`/`)"
             - "traefik.http.routers.agenta-web.entrypoints=web"
-            - "traefik.http.services.agenta-web.loadbalancer.server.port=3001"
+            - "traefik.http.services.agenta-web.loadbalancer.server.port=3000"
         environment:
             - NEXT_PUBLIC_POSTHOG_API_KEY=phc_hmVSxIjTW1REBHXgj2aw4HW9X6CXb6FzerBgP9XenC7
         restart: always
