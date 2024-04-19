@@ -153,18 +153,21 @@ def init(app_name: str, backend_host: str):
             try:
                 key_prefix = api_key.split(".")[0]
                 client.validate_api_key(key_prefix=key_prefix)
-
-                # Make request to fetch user organizations after api key validation
+            except Exception as ex:
+                click.echo(
+                    click.style(
+                        f"Error: Unable to validate API key.\nError: {ex}", fg="red"
+                    )
+                )
+                sys.exit(1)
+            # Make request to fetch user organizations after api key validation
+            try:
                 organizations = client.list_organizations()
                 if len(organizations) >= 1:
                     user_organizations = organizations
             except Exception as ex:
-                if ex.status_code == 401:
-                    click.echo(click.style("Error: Invalid API key", fg="red"))
-                    sys.exit(1)
-                else:
-                    click.echo(click.style(f"Error: {ex}", fg="red"))
-                    sys.exit(1)
+                click.echo(click.style(f"Error: {ex}", fg="red"))
+                sys.exit(1)
 
         filtered_org = None
         if where_question == "On agenta cloud":
@@ -185,7 +188,7 @@ def init(app_name: str, backend_host: str):
 
         # Get app_id after creating new app in the backend server
         try:
-            app_id = client.create_app(
+            app_id = client.apps.create_app(
                 app_name=app_name,
                 organization_id=filtered_org.id if filtered_org else None,
             ).app_id

@@ -1,5 +1,3 @@
-from enum import Enum
-from uuid import uuid4
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
@@ -193,6 +191,8 @@ class Result(BaseModel):
 
 class InvokationResult(BaseModel):
     result: Result
+    cost: Optional[float] = None
+    latency: Optional[float] = None
 
 
 class EvaluationScenarioResult(BaseModel):
@@ -213,6 +213,8 @@ class EvaluationScenarioInputDB(BaseModel):
 
 class EvaluationScenarioOutputDB(BaseModel):
     result: Result
+    cost: Optional[float] = None
+    latency: Optional[float] = None
 
 
 class HumanEvaluationScenarioInput(BaseModel):
@@ -266,6 +268,8 @@ class EvaluationDB(Document):
     variant_revision: PydanticObjectId
     evaluators_configs: List[PydanticObjectId]
     aggregated_results: List[AggregatedResult]
+    average_cost: Optional[Result] = None
+    average_latency: Optional[Result] = None
     created_at: datetime = Field(default=datetime.now())
     updated_at: datetime = Field(default=datetime.now())
 
@@ -284,58 +288,10 @@ class EvaluationScenarioDB(Document):
     note: Optional[str]
     evaluators_configs: List[PydanticObjectId]
     results: List[EvaluationScenarioResult]
+    latency: Optional[int] = None
+    cost: Optional[int] = None
     created_at: datetime = Field(default=datetime.now())
     updated_at: datetime = Field(default=datetime.now())
 
     class Settings:
         name = "new_evaluation_scenarios"
-
-
-class SpanDB(Document):
-    parent_span_id: Optional[str]
-    meta: Optional[Dict[str, Any]]
-    event_name: str  # Function or execution name
-    event_type: Optional[str]
-    start_time: datetime
-    duration: Optional[int]
-    status: str  # initiated, completed, stopped, cancelled
-    end_time: datetime = Field(default=datetime.now())
-    inputs: Optional[List[str]]
-    outputs: Optional[List[str]]
-    prompt_template: Optional[str]
-    tokens_input: Optional[int]
-    tokens_output: Optional[int]
-    token_total: Optional[int]
-    cost: Optional[float]
-    tags: Optional[List[str]]
-
-    class Settings:
-        name = "spans"
-
-
-class Feedback(BaseModel):
-    uid: str = Field(default=str(uuid4()))
-    user_id: str
-    feedback: Optional[str]
-    score: Optional[float]
-    meta: Optional[Dict[str, Any]]
-    created_at: datetime
-    updated_at: datetime = Field(default=datetime.now())
-
-
-class TraceDB(Document):
-    app_id: Optional[str]
-    variant_id: str
-    spans: List[PydanticObjectId]
-    start_time: datetime
-    end_time: datetime = Field(default=datetime.now())
-    cost: Optional[float]
-    latency: float
-    status: str  # initiated, completed, stopped, cancelled, failed
-    token_consumption: Optional[int]
-    user: Link[UserDB]
-    tags: Optional[List[str]]
-    feedbacks: Optional[List[Feedback]]
-
-    class Settings:
-        name = "traces"
