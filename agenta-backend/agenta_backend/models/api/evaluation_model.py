@@ -72,6 +72,7 @@ class Evaluation(BaseModel):
     status: Result
     aggregated_results: List[AggregatedResult]
     average_cost: Optional[Result]
+    total_cost: Optional[Result]
     average_latency: Optional[Result]
     created_at: datetime
     updated_at: datetime
@@ -149,7 +150,8 @@ class HumanEvaluationScenario(BaseModel):
 class HumanEvaluationScenarioUpdate(BaseModel):
     vote: Optional[str]
     score: Optional[Union[str, int]]
-    correct_answer: Optional[str]  # will be used when running custom code evaluation
+    # will be used when running custom code evaluation
+    correct_answer: Optional[str]
     outputs: Optional[List[HumanEvaluationScenarioOutput]]
     inputs: Optional[List[HumanEvaluationScenarioInput]]
     is_pinned: Optional[bool]
@@ -171,7 +173,8 @@ class EvaluationScenario(BaseModel):
 class EvaluationScenarioUpdate(BaseModel):
     vote: Optional[str]
     score: Optional[Any]
-    correct_answer: Optional[str]  # will be used when running custom code evaluation
+    # will be used when running custom code evaluation
+    correct_answer: Optional[str]
     outputs: Optional[List[EvaluationScenarioOutput]]
     inputs: Optional[List[EvaluationScenarioInput]]
     is_pinned: Optional[bool]
@@ -243,6 +246,7 @@ class LMProvidersEnum(str, Enum):
     togetherai = "TOGETHERAI_API_KEY"
     alephalpha = "ALEPHALPHA_API_KEY"
     openrouter = "OPENROUTER_API_KEY"
+    groq = "GROQ_API_KEY"
 
 
 class NewEvaluation(BaseModel):

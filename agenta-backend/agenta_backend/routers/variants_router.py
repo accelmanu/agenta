@@ -1,4 +1,5 @@
 import os
+import inspect
 import logging
 from typing import Any, Optional, Union, List
 
@@ -24,11 +25,13 @@ if isCloudEE():
         Image_ as Image,
         AppVariantResponse_ as AppVariantResponse,
     )
+    from agenta_backend.cloud.services import logs_manager
 else:
     from agenta_backend.models.api.api_models import (
         Image,
         AppVariantResponse,
     )
+    from agenta_backend.services import logs_manager
 
 from agenta_backend.models.api.api_models import (
     URI,
@@ -298,21 +301,30 @@ async def start_variant(
     logger.debug("Starting variant %s", variant_id)
 
     # Inject env vars to docker container
-    if isCloudEE():
-        if not os.environ["OPENAI_API_KEY"]:
-            raise HTTPException(
-                status_code=400,
-                detail="Unable to start app container. Please file an issue by clicking on the button below.",
-            )
-        envvars = {
-            "OPENAI_API_KEY": os.environ["OPENAI_API_KEY"],
-        }
-    else:
-        envvars = {} if env_vars is None else env_vars.env_vars
+    envvars = {} if env_vars is None else env_vars.env_vars
 
     if action.action == VariantActionEnum.START:
         url: URI = await app_manager.start_variant(app_variant_db, envvars)
+
+        # Deploy to production
+        await db_manager.deploy_to_environment(
+            environment_name="production",
+            variant_id=str(app_variant_db.id),
+            user_uid=request.state.user_id,
+        )
     return url
+
+
+@router.get("/{variant_id}/logs/", operation_id="retrieve_variant_logs")
+async def retrieve_variant_logs(variant_id: str, request: Request):
+    try:
+        app_variant = await db_manager.fetch_app_variant_by_id(variant_id)
+        deployment = await db_manager.get_deployment_by_appid(str(app_variant.app.id))
+        logs_result = await logs_manager.retrieve_logs(deployment.container_id)
+        return logs_result
+    except Exception as exc:
+        logger.exception(f"An error occurred: {str(exc)}")
+        raise HTTPException(500, {"message": str(exc)})
 
 
 @router.get(

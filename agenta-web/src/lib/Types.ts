@@ -263,6 +263,7 @@ export interface LlmProvidersKeys {
     AZURE_API_BASE: string
     TOGETHERAI_API_KEY: string
     MISTRAL_API_KEY: string
+    GROQ_API_KEY: string
 }
 
 export interface AppTemplate {
@@ -408,6 +409,7 @@ export interface _Evaluation {
     revisions: string[]
     average_latency?: TypedValue & {error: null | EvaluationError}
     average_cost?: TypedValue & {error: null | EvaluationError}
+    total_cost?: TypedValue & {error: null | EvaluationError}
     variant_revision_ids: string[]
 }
 
