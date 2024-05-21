@@ -40,7 +40,7 @@ fi
 echo "OPENAI_API_BASE=$API_BASE" > .env
 echo "OPENAI_API_KEY=$API_KEY" >> .env
 
-agenta init --app_name $APP_NAME --backend_host http://localhost
+agenta init --app_name $APP_NAME --backend-host http://localhost
 
 echo
 echo "Be Patient! Your app \033[0;32m$APP_NAME\033[0m is getting deployed..."
